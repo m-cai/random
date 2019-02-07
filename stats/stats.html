@@ -1,0 +1,42 @@
+<html>
+   <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+      <script src="../js/jquery.min.js"></script>
+      <script src="../js/dbTransactions.js"></script>
+      <script src="./stats.js"></script>
+      <link rel="stylesheet" href="./stats.css">
+   </head>
+   <style>
+		html, body { height:100%; margin:0; padding:0 }
+		div { position:fixed; width:50%; height:50% }
+		#W1 { top:0;   left:0;   }
+		#W2 { top:33%;   left:0;   }
+		#W3 { top:66%;   left:0;   }
+		#NE { top:0;   left:50%;}
+		#SE { top:50%; left:50%; }  
+   </style>
+   <body>
+   		<div id="W1" style="width: 50%">
+   			<table id="repairTable" cellpadding="0" cellspacing="0">
+   				<caption>Repair Log</caption>
+                <tr class="top"></tr>
+            </table>
+            <table id="contractTable" cellpadding="0" cellspacing="0">
+   				<caption>Contracts</caption>
+                <tr class="top"></tr>
+            </table>
+            <table id="empTable" cellpadding="0" cellspacing="0">
+   				<caption>Employees</caption>
+                <tr class="top"></tr>
+            </table>
+   		</div>
+   		<div id="NE" style="width: 50%">
+   			<canvas id="chart1" width="40%" height="20%"></canvas>
+   		</div>
+   		<div id="SE" style="width: 50%">
+   			<canvas id="chart2" width="40%" height="20%"></canvas>
+   		</div>
+   </body>
+</html>

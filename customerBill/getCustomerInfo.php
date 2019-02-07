@@ -39,8 +39,6 @@ function getCustInfo($number)
 		echo "1, Invalid Customer Phone Number Provided: " . $number;
 		exit();
 	}
-
-	/* query for all the information in the customer bill */
 	
 	$queryString = "SELECT itemId, contractId, description, timeOfArrival FROM RepairLog WHERE custPhone = :phone";
 
@@ -58,6 +56,11 @@ function getCustInfo($number)
 	$contracts = array();
 	$dates = array();
 	$descriptions = array();
+	$prices = array();
+	$costs = array();
+	$l_hours = array();
+	$total = 0;
+	$count = 0;
 
 	/* iterate over all repsonses that match */
 
@@ -85,40 +88,52 @@ function getCustInfo($number)
 		}
 
 		/* push all other data into respective arrays */
-
-		array_push($contracts,$row[1]);
+		if(array_key_exists(1,$row)) {	
+			array_push($contracts,$row[1]);	
+		} else {
+			array_push($contracts,"NO CONTRACT");
+		}
+		
 		array_push($descriptions,$row[2]);
 		array_push($dates,$row[3]);
+
+		/* serialize the data for consumption by the front-end */
+		$queryString = "SELECT total, costofparts, laborhours FROM CustomerBill WHERE itemId = :itemId";
+
+		$query3 = oci_parse($conn,$queryString);
+		oci_bind_by_name($query3,':itemId',$itemId);
+		$res = oci_execute($query3);
+
+		if(!$res) {
+			echo "1, Error in Database Query for customer total in Customer Bill";
+			exit();
+		}
+
+		if(($row3=oci_fetch_array($query3,OCI_BOTH)) != false) {
+			$total = $total + (int)$row3[0];
+			array_push($prices,(int)$row3[0]);
+			array_push($costs,(int)$row3[1]);
+			array_push($l_hours,(int)$row3[2]);
+		}
+
+		$count += 1;
+
 	}
 
-	/* serialize the data for consumption by the front-end */
-
-	$contract_str = implode("|",$contracts);
-	$model_str = implode("|",$models);
-	$description_str = implode("|",$descriptions);
-	$dates_str = implode("|",$dates);
-
-	$total = 0;
-
-	$queryString = "SELECT total FROM CustomerBill WHERE custPhone=:phone";
-
-	$query = oci_parse($conn,$queryString);
-	oci_bind_by_name($query,':phone',$number);
-	$res = oci_execute($query);
-
-	if(!$res) {
-		echo "1, Error in Database Query for customer total in Customer Bill";
-		exit();
-	}
-
-	if(($row=oci_fetch_array($query,OCI_BOTH)) != false) {
-		$total = $row[0];
-	} else {
+	if($count == 0) {
 		echo "1, Customer is Not Billed for this number: " . $number;
 		exit();
 	}
 
-	$arr = array ( 0 => $name, 1 => $number, 2 => $contract_str, 3 => $model_str, 4 => $description_str, 5 => $dates_str, 6 => $total);
+	$contract_str = implode("|",$contracts);
+	$model_str = implode("|",$models);
+	$description_str = implode("|",$descriptions);
+	$dates_str = implode("|",$dates);	
+	$price_str = implode("|",$prices);
+	$costs_str = implode("|",$costs);
+	$hours_str = implode("|",$l_hours);
+
+	$arr = array ( 0 => $name, 1 => $number, 2 => $contract_str, 3 => $model_str, 4 => $description_str, 5 => $dates_str, 6 => $price_str, 7 => $costs_str, 8 => $hours_str, 9 => $total);
 
 	$str = implode (",", $arr);
     echo "0," . $str;

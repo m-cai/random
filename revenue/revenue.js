@@ -1,22 +1,24 @@
 (function(scope) {
 
-	console.log('acceptMachine.js has been invoked')
+	console.log('revenue.js has been invoked')
 
 	$(document).ready(function(){
+
+		$(function() {
+		   $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+		});
 
 		$('.submit_button').click(function(e) {	
 
 		  e.preventDefault()  
 
 		  // debug
-		  console.log("Accept Machine Submit button was clicked")
+		  console.log("Revenue Generate button was clicked")
 
 		  missing = false;
 		  message = "";
 
-		  model = "";
-
-		  var data = $('.acceptForm').serializeArray().reduce(function(obj, item) {
+		  var data = $('.revenueForm').serializeArray().reduce(function(obj, item) {
 		  	if (item.value == "") {
 		  		message += "[FIELD]: " + item.name + " is missing. "
 		  		missing = true;
@@ -33,16 +35,15 @@
 		  }
 
 		  var callback = function(result,message) {
-		  	console.log("Reached");
 		  	if(result == 0) {
-		  		alert("New Machine '" + model + "' was Accepted");
+		  		alert("Revenue Generated: " + message);
 		  	} else {
 		  		alert("An Error Occured. " + message)
 		  	}
 		  }
 
 		  // call function from dbTransactions.js
-		  scope.fetchPHPdata(data, "acceptMachine.php", callback);
+		  scope.fetchPHPdata(data, "revenue.php", callback);
 
 		});
 

@@ -1,6 +1,6 @@
 <?php
 
-if(!isset($_GET['name']) || !isset($_GET['model']) || !isset($_GET['phone_number'])) {
+if(!isset($_GET['name']) || !isset($_GET['model']) || !isset($_GET['phone_number']) || !isset($_GET['c_id']) || !isset($_GET['m_id'])) {
 	echo "1, Some Input Field Are Empty";
 	exit();
 }
@@ -8,10 +8,12 @@ if(!isset($_GET['name']) || !isset($_GET['model']) || !isset($_GET['phone_number
 $arg1 = $_GET['name'];
 $arg2 = $_GET['model'];
 $arg3 = $_GET['phone_number'];
+$arg4 = $_GET['c_id'];
+$arg5 = $_GET['m_id'];
 
-acceptMachine($arg1, $arg2, $arg3);
+acceptMachine($arg1, $arg2, $arg3, $arg4, $arg5);
 
-function acceptMachine($name, $model, $number)
+function acceptMachine($name, $model, $number, $c_id, $m_id)
 {
 
 	$conn=oci_connect('mcai','magstar816','dbserver.engr.scu.edu/db11g');
@@ -20,30 +22,29 @@ function acceptMachine($name, $model, $number)
 		exit();
 	}
 
-	/*acceptMachine(n_name in VARCHAR, model in VARCHAR, cId in VARCHAR, in_date in DATE)*/
-	$queryString = 'BEGIN acceptMachine(:name,:model,:cid,:date,:message); END;';
-
-	$date = "2015-12-11";
-	$message = "";
+	$date = date("Y-m-d");
+	
+	/*(n_name,phone,n_item,model,cId, in_date, message)*/
+	$queryString = "BEGIN acceptMachine(:name,:phone,:m_id,:model,:cid,to_date(:date,'YYYY-MM-DD'),:msg); END;";
 
 	$query = oci_parse($conn,$queryString);
-	oci_bind_by_name($query,':name',$nams);
+	oci_bind_by_name($query,':name',$name);
+	oci_bind_by_name($query,':phone',$number);
+	oci_bind_by_name($query,':m_id',$m_id);
 	oci_bind_by_name($query,':model',$model);
-	oci_bind_by_name($query,':cid',$number);
+	oci_bind_by_name($query,':cid',$c_id);
 	oci_bind_by_name($query,':date',$date);
-	oci_bind_by_name($query,':message',$message);
+	oci_bind_by_name($query,':msg',$message,60);
 
 	$res = oci_execute($query);
 
 	if(!$res) {
-		echo "1, Error in Database Query";
+		echo "1, There was an Error";
 		exit();
 	}
 
-	//$arr = array ( 0 => $name, 1 => $model, 2 => $s_contract);
-
 	//$str = implode (",", $arr);
-    echo "0," . $message;
+    echo $message;
 }
 
 ?>
